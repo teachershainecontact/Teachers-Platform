@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — Teacher Shain</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #0f0e0c; --paper: #faf8f4; --cream: #f2ede4;
+      --gold: #c8963e; --gold-light: #e8b96a; --red: #c0392b;
+      --sage: #4a6741; --muted: #8a8070; --border: #ddd8ce;
+      --navy: #1a2540;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; display: flex; }
+
+    .sidebar { width: 240px; background: var(--navy); padding: 28px 20px; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+    .sidebar-logo { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+    .sidebar-logo span { color: var(--gold); }
+    .sidebar-sub { font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 28px; }
+    .nav-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 8px; margin-top: 20px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 9px; color: rgba(255,255,255,0.5); font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: none; width: 100%; text-align: left; margin-bottom: 2px; transition: all 0.15s; text-decoration: none; font-family: 'DM Sans', sans-serif; }
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+    .nav-item.active { background: var(--gold); color: var(--ink); }
+    .nav-item .icon { font-size: 15px; width: 20px; text-align: center; }
+    .sidebar-bottom { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+
+    .main { flex: 1; padding: 36px 40px; overflow-y: auto; }
+    .page-header { margin-bottom: 28px; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; margin-bottom: 4px; }
+    .page-title span { color: var(--gold); font-style: italic; }
+    .page-sub { font-size: 13px; color: var(--muted); }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 24px 28px; margin-bottom: 20px; }
+    .card-title { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.5px; margin-bottom: 6px; text-transform: uppercase; }
+    .form-group input, .form-group select {
+      width: 100%; padding: 11px 14px; background: var(--cream);
+      border: 1px solid var(--border); border-radius: 10px;
+      font-size: 14px; color: var(--ink); font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--gold); background: #fff; }
+    .form-group .hint { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .btn-save { padding: 11px 24px; background: var(--gold); border: none; border-radius: 10px; font-size: 13px; font-weight: 700; color: var(--ink); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.15s; }
+    .btn-save:hover { background: var(--gold-light); }
+    .btn-danger { padding: 11px 24px; background: none; border: 1px solid var(--red); border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--red); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+    .btn-danger:hover { background: var(--red); color: #fff; }
+
+    .worker-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-bottom: 20px; }
+    .worker-card { background: var(--cream); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+    .worker-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .worker-url { font-size: 11px; color: var(--muted); margin-bottom: 8px; word-break: break-all; }
+
+    .course-tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--cream); padding: 4px; border-radius: 10px; border: 1px solid var(--border); }
+    .course-tab { flex: 1; padding: 8px; text-align: center; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 7px; border: none; background: none; color: var(--muted); transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+    .course-tab.active { background: var(--ink); color: #fff; }
+
+    .student-table { width: 100%; border-collapse: collapse; }
+    .student-table th { text-align: left; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); padding: 10px 14px; border-bottom: 2px solid var(--border); }
+    .student-table td { padding: 12px 14px; border-bottom: 1px solid var(--cream); font-size: 13px; }
+    .student-table tr:hover td { background: var(--cream); }
+    .type-badge { padding: 2px 9px; border-radius: 100px; font-size: 10px; font-weight: 700; }
+    .type-esl   { background: rgba(200,150,62,0.15); color: #8a6020; }
+    .type-ielts { background: rgba(26,58,120,0.1);   color: #1a3a78; }
+    .type-toefl { background: rgba(58,26,92,0.1);    color: #3a1a5c; }
+    .type-pte   { background: rgba(26,92,58,0.1);    color: #1a5c3a; }
+    .action-link { font-size: 12px; color: var(--muted); cursor: pointer; }
+    .action-link:hover { color: var(--red); }
+
+    .empty { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
+
+    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 11px 20px; border-radius: 10px; font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 200; white-space: nowrap; }
+
+    @media (max-width: 900px) {
+      body { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: static; }
+      .main { padding: 20px 16px; }
+      .form-row, .worker-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div>
+    <div class="sidebar-logo">Teacher <span>Shain</span></div>
+    <div class="sidebar-sub">Admin Panel</div>
+  </div>
+
+  <p class="nav-label">Settings</p>
+  <button class="nav-item active" onclick="showSection('classroom',this)"><span class="icon">🎓</span> Classroom</button>
+  <button class="nav-item" onclick="showSection('workers',this)"><span class="icon">⚙️</span> Workers & APIs</button>
+  <button class="nav-item" onclick="showSection('drive',this)"><span class="icon">📁</span> Google Drive</button>
+
+  <p class="nav-label">Manage</p>
+  <button class="nav-item" onclick="showSection('students',this)"><span class="icon">👩‍🎓</span> All Students</button>
+  <button class="nav-item" onclick="showSection('classes',this)"><span class="icon">🏫</span> Classes</button>
+
+  <p class="nav-label">System</p>
+  <button class="nav-item" onclick="showSection('status',this)"><span class="icon">📊</span> System Status</button>
+  <button class="nav-item" onclick="showSection('danger',this)"><span class="icon">⚠️</span> Danger Zone</button>
+
+  <div class="sidebar-bottom">
+    <a href="teacher-dashboard.html" class="nav-item"><span class="icon">←</span> Teacher Dashboard</a>
+    <button class="nav-item" onclick="doLogout()"><span class="icon">⏻</span> Sign out</button>
+  </div>
+</aside>
+
+<main class="main">
+
+  <!-- CLASSROOM -->
+  <div class="section active" id="section-classroom">
+    <div class="page-header">
+      <h1 class="page-title">Classroom <span>Settings</span></h1>
+      <p class="page-sub">Configure the live classroom embedded in the platform.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">📹 Meeting Platform</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Set the active meeting URL. The classroom page will embed whichever URL you set here. Supports Whereby, JaaS (8x8), and Sylaps.</p>
+
+      <div class="form-group">
+        <label>Active Meeting URL</label>
+        <input type="url" id="meetingUrl" placeholder="Paste your Whereby, JaaS, or Sylaps room URL here">
+        <div class="hint" id="platformHint">Paste a URL and the platform will be detected automatically.</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">
+        <div style="background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12px">
+          <div style="font-weight:700;margin-bottom:4px">📹 Whereby</div>
+          <div style="color:var(--muted);margin-bottom:8px">Free · 25 users · No time limit · Simple iframe</div>
+          <a href="https://whereby.com" target="_blank" style="font-size:11px;color:var(--gold);text-decoration:none">Sign up →</a>
+        </div>
+        <div style="background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12px">
+          <div style="font-weight:700;margin-bottom:4px">🎥 JaaS (8x8)</div>
+          <div style="color:var(--muted);margin-bottom:8px">Free · 25 MAU · Unlimited minutes · Enterprise quality</div>
+          <a href="https://jaas.8x8.vc" target="_blank" style="font-size:11px;color:var(--gold);text-decoration:none">Sign up →</a>
+        </div>
+        <div style="background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12px">
+          <div style="font-weight:700;margin-bottom:4px">🔗 Sylaps</div>
+          <div style="color:var(--muted);margin-bottom:8px">Free · Peer-to-peer · No install · Browser-based</div>
+          <a href="https://sylaps.com" target="_blank" style="font-size:11px;color:var(--gold);text-decoration:none">Sign up →</a>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Next Class Time</label>
+          <input type="text" id="nextClassTime" placeholder="e.g. Tue & Thu 7:00 PM">
+        </div>
+        <div class="form-group">
+          <label>Class Info</label>
+          <input type="text" id="nextClassInfo" placeholder="e.g. Intermediate · 90 min">
+        </div>
+      </div>
+      <button class="btn-save" onclick="saveClassroom()">Save Settings</button>
+    </div>
+    <div class="card">
+      <div class="card-title">🔗 Embed Preview</div>
+      <div id="wherebyPreview" style="background:var(--cream);border:1px solid var(--border);border-radius:12px;height:280px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px">
+        Save a meeting URL above to preview
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKERS -->
+  <div class="section" id="section-workers">
+    <div class="page-header">
+      <h1 class="page-title">Workers <span>& APIs</span></h1>
+      <p class="page-sub">Configure Cloudflare Worker URLs and API keys for each course.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">☁️ Cloudflare Worker URLs</div>
+      <div class="form-group"><label>ESL Worker</label><input type="url" id="workerEsl" placeholder="https://worker-esl.your-name.workers.dev"></div>
+      <div class="form-group"><label>IELTS Worker</label><input type="url" id="workerIelts" placeholder="https://worker-ielts.your-name.workers.dev"></div>
+      <div class="form-group"><label>TOEFL Worker</label><input type="url" id="workerToefl" placeholder="https://worker-toefl.your-name.workers.dev"></div>
+      <div class="form-group"><label>PTE Worker</label><input type="url" id="workerPte" placeholder="https://worker-pte.your-name.workers.dev"></div>
+      <div class="form-group">
+        <label>AI Worker (shared)</label>
+        <input type="url" id="workerAi" placeholder="https://worker-ai.your-name.workers.dev">
+        <div class="hint">Handles Whisper transcription, pronunciation scoring, and homework generation across all courses.</div>
+      </div>
+      <button class="btn-save" onclick="saveWorkers()">Save Worker URLs</button>
+    </div>
+    <div class="card">
+      <div class="card-title">🔑 Google Apps Script</div>
+      <div class="form-group">
+        <label>Apps Script Web App URL</label>
+        <input type="url" id="appsScriptUrl" placeholder="https://script.google.com/macros/s/…/exec">
+        <div class="hint">Deploy your Apps Script as a Web App and paste the URL here. Used for all Google Drive uploads.</div>
+      </div>
+      <button class="btn-save" onclick="saveAppsScript()">Save</button>
+    </div>
+  </div>
+
+  <!-- DRIVE -->
+  <div class="section" id="section-drive">
+    <div class="page-header">
+      <h1 class="page-title">Google <span>Drive</span></h1>
+      <p class="page-sub">Configure Drive folder IDs for file uploads.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">📁 Folder IDs</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Open each folder in Google Drive, copy the ID from the URL (the long string after /folders/) and paste it here.</p>
+      <div class="form-row">
+        <div class="form-group"><label>Student Recordings</label><input type="text" id="driveRecordings" placeholder="Folder ID"></div>
+        <div class="form-group"><label>Class Transcripts</label><input type="text" id="driveTranscripts" placeholder="Folder ID"></div>
+        <div class="form-group"><label>Teacher Feedback</label><input type="text" id="driveFeedback" placeholder="Folder ID"></div>
+        <div class="form-group"><label>Exam Submissions</label><input type="text" id="driveExams" placeholder="Folder ID"></div>
+      </div>
+      <button class="btn-save" onclick="saveDrive()">Save Drive Settings</button>
+    </div>
+  </div>
+
+  <!-- STUDENTS -->
+  <div class="section" id="section-students">
+    <div class="page-header">
+      <h1 class="page-title">All <span>Students</span></h1>
+      <p class="page-sub">View and manage students across all courses.</p>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px">
+        <div class="course-tabs" style="margin-bottom:0;flex:1">
+          <button class="course-tab active" onclick="loadStudents('all',this)">All</button>
+          <button class="course-tab" onclick="loadStudents('esl',this)">ESL</button>
+          <button class="course-tab" onclick="loadStudents('ielts',this)">IELTS</button>
+          <button class="course-tab" onclick="loadStudents('toefl',this)">TOEFL</button>
+          <button class="course-tab" onclick="loadStudents('pte',this)">PTE</button>
+        </div>
+      </div>
+      <div id="studentTableWrap" style="overflow-x:auto"><div class="empty">Loading students…</div></div>
+    </div>
+  </div>
+
+  <!-- CLASSES -->
+  <div class="section" id="section-classes">
+    <div class="page-header">
+      <h1 class="page-title">Class <span>Management</span></h1>
+      <p class="page-sub">View all classes across courses.</p>
+    </div>
+    <div class="card"><div id="classesList"><div class="empty">Loading classes…</div></div></div>
+  </div>
+
+  <!-- STATUS -->
+  <div class="section" id="section-status">
+    <div class="page-header">
+      <h1 class="page-title">System <span>Status</span></h1>
+      <p class="page-sub">Check connectivity to all workers and services.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">☁️ Worker Status</div>
+      <div class="worker-grid" id="workerStatusGrid"></div>
+      <button class="btn-save" onclick="checkStatus()">🔄 Check All</button>
+    </div>
+  </div>
+
+  <!-- DANGER -->
+  <div class="section" id="section-danger">
+    <div class="page-header">
+      <h1 class="page-title">Danger <span>Zone</span></h1>
+      <p class="page-sub">Irreversible actions. Use with caution.</p>
+    </div>
+    <div class="card" style="border-color:#e8b0b0">
+      <div class="card-title" style="color:var(--red)">🗑️ Clear Local Cache</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Clears all cached settings and worker URLs from this browser. Does not affect the database.</p>
+      <button class="btn-danger" onclick="clearCache()">Clear Local Cache</button>
+    </div>
+    <div class="card" style="border-color:#e8b0b0;margin-top:16px">
+      <div class="card-title" style="color:var(--red)">⚠️ Reset Whereby URL</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Removes the cached Whereby room URL. Students will see "No classroom set up" until a new URL is saved.</p>
+      <button class="btn-danger" onclick="resetWhereby()">Reset Whereby URL</button>
+    </div>
+  </div>
+
+</main>
+<div id="toast"></div>
+
+<script>
+  const W = localStorage.getItem('ts_worker') || 'https://teacher-shain.teachershainecontact.workers.dev';
+
+  window.onload = () => {
+    const u = (() => { try { return JSON.parse(localStorage.getItem('ts_user')||'{}'); } catch { return {}; } })();
+    if (u.role !== 'teacher') { location.href = '../index.html'; return; }
+    loadSaved();
+    loadStudents('all');
+  };
+
+  function doLogout() { localStorage.removeItem('ts_user'); location.href = '../index.html'; }
+
+  function showSection(name, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById('section-' + name).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    if (name === 'status') checkStatus();
+    if (name === 'classes') loadClasses();
+    if (name === 'students') loadStudents('all');
+  }
+
+  function loadSaved() {
+    const map = {
+      meetingUrl:'meeting_url', nextClassTime:'next_class_time', nextClassInfo:'next_class_info',
+      workerEsl:'worker_esl', workerIelts:'worker_ielts', workerToefl:'worker_toefl',
+      workerPte:'worker_pte', workerAi:'worker_ai', appsScriptUrl:'ts_script',
+      driveRecordings:'drive_recordings', driveTranscripts:'drive_transcripts',
+      driveFeedback:'drive_feedback', driveExams:'drive_exams'
+    };
+    Object.entries(map).forEach(([id, key]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = localStorage.getItem(key) || '';
+    });
+    // Fall back to legacy whereby key
+    if (!localStorage.getItem('meeting_url') && localStorage.getItem('whereby_room_url')) {
+      const el = document.getElementById('meetingUrl');
+      if (el) el.value = localStorage.getItem('whereby_room_url');
+    }
+    const url = localStorage.getItem('meeting_url') || localStorage.getItem('whereby_room_url');
+    if (url) updateWherebyPreview(url);
+    // Add platform detection on input
+    const urlEl = document.getElementById('meetingUrl');
+    if (urlEl) urlEl.addEventListener('input', () => detectPlatform(urlEl.value));
+  }
+
+  function detectPlatform(url) {
+    const hint = document.getElementById('platformHint');
+    if (!hint) return;
+    if (!url) { hint.textContent = 'Paste a URL and the platform will be detected automatically.'; hint.style.color = ''; return; }
+    if (url.includes('whereby.com')) {
+      hint.textContent = '✓ Whereby detected — will embed with ?embed param';
+      hint.style.color = 'var(--sage)';
+    } else if (url.includes('8x8.vc') || url.includes('jaas')) {
+      hint.textContent = '✓ JaaS (8x8) detected — will embed directly';
+      hint.style.color = 'var(--sage)';
+    } else if (url.includes('sylaps.com')) {
+      hint.textContent = '✓ Sylaps detected — will embed directly';
+      hint.style.color = 'var(--sage)';
+    } else {
+      hint.textContent = '⚠ Unknown platform — will try to embed, may not work';
+      hint.style.color = 'var(--gold)';
+    }
+  }
+
+  async function saveClassroom() {
+    const url  = document.getElementById('meetingUrl').value.trim();
+    const time = document.getElementById('nextClassTime').value.trim();
+    const info = document.getElementById('nextClassInfo').value.trim();
+    if (url)  { localStorage.setItem('meeting_url', url); localStorage.setItem('whereby_room_url', url); }
+    if (time) localStorage.setItem('next_class_time', time);
+    if (info) localStorage.setItem('next_class_info', info);
+    try {
+      await fetch(W + '/settings', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ whereby_room_url: url, meeting_url: url, next_class_time: time, next_class_info: info })
+      });
+    } catch(e) {}
+    if (url) updateWherebyPreview(url);
+    showToast('✓ Classroom settings saved');
+  }
+
+  function buildEmbedUrl(url) {
+    if (url.includes('whereby.com')) return url + (url.includes('?') ? '&' : '?') + 'embed&skipMediaPermissionPrompt';
+    return url;
+  }
+
+  function updateWherebyPreview(url) {
+    const embedUrl = buildEmbedUrl(url);
+    document.getElementById('wherebyPreview').innerHTML =
+      `<iframe src="${embedUrl}" allow="camera;microphone;fullscreen;display-capture;clipboard-write;encrypted-media" style="width:100%;height:100%;border:none;border-radius:12px"></iframe>`;
+  }
+
+  function saveWorkers() {
+    const map = {
+      workerEsl:'worker_esl', workerIelts:'worker_ielts', workerToefl:'worker_toefl',
+      workerPte:'worker_pte', workerAi:'worker_ai'
+    };
+    Object.entries(map).forEach(([id, key]) => {
+      const val = document.getElementById(id)?.value.trim();
+      if (val) localStorage.setItem(key, val);
+    });
+    const esl = document.getElementById('workerEsl').value.trim();
+    if (esl) localStorage.setItem('ts_worker', esl);
+    showToast('✓ Worker URLs saved');
+  }
+
+  function saveAppsScript() {
+    const val = document.getElementById('appsScriptUrl').value.trim();
+    if (val) { localStorage.setItem('ts_script', val); showToast('✓ Apps Script URL saved'); }
+  }
+
+  function saveDrive() {
+    const map = { driveRecordings:'drive_recordings', driveTranscripts:'drive_transcripts', driveFeedback:'drive_feedback', driveExams:'drive_exams' };
+    Object.entries(map).forEach(([id, key]) => { const v = document.getElementById(id)?.value.trim(); if (v) localStorage.setItem(key, v); });
+    showToast('✓ Drive folder IDs saved');
+  }
+
+  async function loadStudents(type, btn) {
+    if (btn) { document.querySelectorAll('.course-tab').forEach(t => t.classList.remove('active')); btn.classList.add('active'); }
+    const wrap = document.getElementById('studentTableWrap');
+    wrap.innerHTML = '<div class="empty">Loading…</div>';
+    try {
+      const url = type === 'all' ? W + '/students' : W + '/students?type=' + type;
+      const res = await fetch(url);
+      const students = await res.json();
+      if (!students.length) { wrap.innerHTML = '<div class="empty">No students found.</div>'; return; }
+      wrap.innerHTML = `<table class="student-table">
+        <thead><tr><th>Name</th><th>Username</th><th>Course</th><th>Class</th><th>Joined</th><th></th></tr></thead>
+        <tbody>${students.map(s => `<tr>
+          <td><strong>${s.name}</strong></td>
+          <td style="color:var(--muted)">@${s.username}</td>
+          <td><span class="type-badge type-${s.student_type||'esl'}">${(s.student_type||'ESL').toUpperCase()}</span></td>
+          <td>${s.class_name||'—'}</td>
+          <td style="color:var(--muted)">${s.created_at?.slice(0,10)||'—'}</td>
+          <td><span class="action-link" onclick="removeStudent(${s.id},'${s.name}')">Remove</span></td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    } catch(e) { wrap.innerHTML = '<div class="empty">Could not load — ' + e.message + '</div>'; }
+  }
+
+  async function removeStudent(id, name) {
+    if (!confirm('Remove ' + name + '? This cannot be undone.')) return;
+    try { await fetch(W + '/students/' + id, { method: 'DELETE' }); showToast('✓ Removed'); loadStudents('all'); }
+    catch(e) { showToast('Error: ' + e.message); }
+  }
+
+  async function loadClasses() {
+    const el = document.getElementById('classesList');
+    try {
+      const res = await fetch(W + '/classes');
+      const classes = await res.json();
+      if (!classes.length) { el.innerHTML = '<div class="empty">No classes yet.</div>'; return; }
+      el.innerHTML = classes.map(c => `
+        <div style="display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--border)">
+          <div style="flex:1"><div style="font-weight:600">${c.name}</div><div style="font-size:12px;color:var(--muted)">${c.student_count||0} students</div></div>
+          <div style="font-size:12px;color:var(--muted)">${c.created_at?.slice(0,10)||''}</div>
+        </div>`).join('');
+    } catch(e) { el.innerHTML = '<div class="empty">Could not load classes.</div>'; }
+  }
+
+  async function checkStatus() {
+    const workers = [
+      { id:'esl',    label:'ESL Worker',   key:'worker_esl' },
+      { id:'ielts',  label:'IELTS Worker', key:'worker_ielts' },
+      { id:'toefl',  label:'TOEFL Worker', key:'worker_toefl' },
+      { id:'pte',    label:'PTE Worker',   key:'worker_pte' },
+      { id:'ai',     label:'AI Worker',    key:'worker_ai' },
+      { id:'script', label:'Apps Script',  key:'ts_script' },
+    ];
+    const grid = document.getElementById('workerStatusGrid');
+    grid.innerHTML = workers.map(w => `
+      <div class="worker-card">
+        <div class="worker-name">${w.label}</div>
+        <div class="worker-url" id="su_${w.id}">${localStorage.getItem(w.key) || 'Not configured'}</div>
+        <div id="ss_${w.id}" style="font-size:12px">⏳ Checking…</div>
+      </div>`).join('');
+
+    for (const w of workers) {
+      const url = localStorage.getItem(w.key);
+      const el = document.getElementById('ss_' + w.id);
+      if (!url) { el.textContent = '— Not configured'; el.style.color = 'var(--muted)'; continue; }
+      try {
+        const res = await fetch(url + '/health', { signal: AbortSignal.timeout(5000) });
+        el.textContent = res.ok ? '🟢 Online' : '🔴 Error ' + res.status;
+      } catch { el.textContent = '🔴 Unreachable'; }
+    }
+  }
+
+  function clearCache() {
+    if (!confirm('Clear all local settings and session data?')) return;
+    const keep = ['ts_user','ts_login_time'];
+    Object.keys(localStorage).filter(k => !keep.includes(k)).forEach(k => localStorage.removeItem(k));
+    loadSaved();
+    showToast('✓ Local cache cleared');
+  }
+
+  function resetWhereby() {
+    if (!confirm('Remove the active meeting URL?')) return;
+    localStorage.removeItem('meeting_url');
+    localStorage.removeItem('whereby_room_url');
+    localStorage.removeItem('jaas_room_url');
+    localStorage.removeItem('sylaps_room_url');
+    const el = document.getElementById('meetingUrl');
+    if (el) el.value = '';
+    document.getElementById('wherebyPreview').innerHTML = 'Save a meeting URL above to preview';
+    showToast('✓ Meeting URL removed');
+  }
+
+  function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 3000); }
+</script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IELTS Preparation — Teacher Shen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #0f0e0c;
+      --paper: #faf8f4;
+      --cream: #f2ede4;
+      --gold: #c8963e;
+      --gold-light: #e8b96a;
+      --sage: #4a6741;
+      --red: #c0392b;
+      --muted: #8a8070;
+      --border: #ddd8ce;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+    /* TOPBAR */
+    .topbar { background: var(--ink); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .topbar-logo { font-family: 'Playfair Display', serif; font-size: 18px; color: #fff; font-weight: 700; }
+    .topbar-logo span { color: var(--gold); }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .student-name { font-size: 13px; color: rgba(255,255,255,0.5); }
+    .logout-btn { font-size: 13px; color: rgba(255,255,255,0.4); background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .logout-btn:hover { color: #fff; }
+
+    /* HERO */
+    .hero {
+      background: var(--ink);
+      padding: 32px 24px 40px;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: 'IELTS';
+      position: absolute; right: -10px; bottom: -20px;
+      font-family: 'Playfair Display', serif;
+      font-size: 100px; font-weight: 700;
+      color: rgba(255,255,255,0.03); line-height: 1;
+    }
+    .hero-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+    .hero-name { font-family: 'Playfair Display', serif; font-size: 28px; color: #fff; font-weight: 700; margin-bottom: 4px; }
+    .hero-sub { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 24px; }
+
+    /* BAND CARDS */
+    .band-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+    .band-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 12px; text-align: center;
+    }
+    .band-label { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
+    .band-score { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; color: var(--gold); line-height: 1; }
+    .band-score.no-score { font-size: 18px; color: rgba(255,255,255,0.2); }
+    .overall-band {
+      background: rgba(200,150,62,0.15);
+      border: 1px solid rgba(200,150,62,0.3);
+      border-radius: 10px; padding: 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .overall-label { font-size: 12px; color: rgba(255,255,255,0.5); }
+    .overall-score { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: var(--gold); }
+    .target-badge { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+    /* CONTAINER */
+    .container { max-width: 760px; margin: 0 auto; padding: 24px; }
+
+    /* SECTION HEADER */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .section-title { font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+
+    /* EXAM CARDS */
+    .exam-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px 24px;
+      margin-bottom: 14px; transition: box-shadow 0.2s;
+    }
+    .exam-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .exam-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+    .exam-title { font-size: 16px; font-weight: 600; }
+    .exam-status {
+      font-size: 11px; padding: 4px 12px; border-radius: 100px;
+      font-weight: 600; letter-spacing: 0.5px;
+    }
+    .status-pending { background: #fff8e6; color: #b07800; border: 1px solid #f0d080; }
+    .status-in-progress { background: #e8f4fb; color: #1a6090; border: 1px solid #b0d4f0; }
+    .status-submitted { background: #eef7f0; color: var(--sage); border: 1px solid #b0d8b4; }
+    .status-reviewed { background: var(--ink); color: #fff; border: 1px solid var(--ink); }
+
+    .exam-meta { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+    .exam-sections { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .section-pill {
+      font-size: 11px; padding: 4px 10px; border-radius: 100px;
+      background: var(--cream); border: 1px solid var(--border);
+      color: var(--ink);
+    }
+
+    /* SCORE DISPLAY */
+    .score-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px; }
+    .score-box { background: var(--cream); border-radius: 8px; padding: 10px; text-align: center; }
+    .score-box-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .score-box-val { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--sage); }
+
+    /* BUTTONS */
+    .btn { padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+    .btn-gold { background: var(--gold); color: var(--ink); }
+    .btn-gold:hover { background: var(--gold-light); }
+    .btn-outline { background: none; border: 1px solid var(--border); color: var(--ink); }
+    .btn-outline:hover { background: var(--cream); }
+    .btn-sage { background: var(--sage); color: #fff; }
+
+    /* FEEDBACK CARD */
+    .feedback-card {
+      background: #fffbf2; border: 1px solid #f0d080;
+      border-radius: 12px; padding: 16px; margin-top: 12px;
+    }
+    .feedback-card-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+
+    /* EMPTY STATE */
+    .empty { text-align: center; padding: 48px 24px; color: var(--muted); font-size: 15px; }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+    /* PROGRESS BAR */
+    .progress-bar-wrap { height: 6px; background: var(--border); border-radius: 3px; margin-top: 8px; }
+    .progress-bar { height: 100%; border-radius: 3px; background: var(--gold); transition: width 0.5s; }
+
+    /* TOAST */
+    #toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--ink); color: #fff; padding: 12px 22px;
+      border-radius: 10px; font-size: 14px; opacity: 0;
+      transition: opacity 0.3s; pointer-events: none; z-index: 100; white-space: nowrap;
+    }
+
+    @media (max-width: 500px) {
+      .band-grid { grid-template-columns: repeat(2,1fr); }
+      .score-grid { grid-template-columns: repeat(2,1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<!-- MAIN APP -->
+<div id="mainApp">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:16px">
+      <a href="student-dashboard.html" style="color:rgba(255,255,255,0.4);text-decoration:none;font-size:13px">← Dashboard</a>
+      <div class="topbar-logo">Teacher <span>Shain</span> · IELTS</div>
+    </div>
+    <div class="topbar-right">
+      <a href="classroom.html" style="padding:7px 16px;background:var(--gold);color:#000;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">🎓 Join Class</a>
+      <span class="student-name" id="topbarName"></span>
+      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-label">IELTS Preparation</div>
+    <div class="hero-name" id="heroName">Welcome</div>
+    <div class="hero-sub" id="heroSub">Loading your scores…</div>
+
+    <div class="band-grid" id="bandGrid">
+      <div class="band-card"><div class="band-label">Listening</div><div class="band-score no-score" id="bandL">—</div></div>
+      <div class="band-card"><div class="band-label">Reading</div><div class="band-score no-score" id="bandR">—</div></div>
+      <div class="band-card"><div class="band-label">Writing</div><div class="band-score no-score" id="bandW">—</div></div>
+      <div class="band-card"><div class="band-label">Speaking</div><div class="band-score no-score" id="bandS">—</div></div>
+    </div>
+
+    <div class="overall-band">
+      <div>
+        <div class="overall-label">Overall Band</div>
+        <div class="overall-score" id="bandOverall">—</div>
+      </div>
+      <div class="target-badge" id="targetBadge"></div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="container">
+
+    <!-- MY EXAMS -->
+    <div style="margin-bottom:32px">
+      <div class="section-header">
+        <p class="section-title">My Exams</p>
+      </div>
+      <div id="examsList">
+        <div class="empty">
+          <div class="empty-icon">📋</div>
+          Loading your exams…
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const W = localStorage.getItem('ts_worker') || 'https://teacher-shain.teachershainecontact.workers.dev';
+  let currentStudent = null;
+  let mySubmissions = [];
+
+  // ── SESSION — uses main platform login (ts_user) ──────────
+  function doLogout() {
+    localStorage.removeItem('ts_user');
+    localStorage.removeItem('ielts_student');
+    window.location.href = '../index.html';
+  }
+
+  // ── SESSION TIMEOUT (8h) ──────────────────────────────────
+  (function() {
+    const TIMEOUT = 28800000;
+    const loginTime = localStorage.getItem('ts_login_time');
+    if (loginTime && Date.now() - parseInt(loginTime) > TIMEOUT) {
+      alert('Your session has expired. Please sign in again.');
+      doLogout(); return;
+    }
+    setInterval(() => {
+      const t = localStorage.getItem('ts_login_time');
+      if (t && Date.now() - parseInt(t) > TIMEOUT) { alert('Session expired.'); doLogout(); }
+    }, 5 * 60 * 1000);
+    ['click','keydown','touchstart'].forEach(e =>
+      document.addEventListener(e, () => localStorage.setItem('ts_login_time', Date.now().toString()), { passive: true })
+    );
+  })();
+
+  // ── INIT ───────────────────────────────────────────────────
+  window.onload = () => {
+    // Try ts_user first (logged in via main platform)
+    const tsUser = localStorage.getItem('ts_user');
+    const savedIelts = localStorage.getItem('ielts_student');
+
+    if (tsUser) {
+      const u = JSON.parse(tsUser);
+      if (u.role !== 'student') { window.location.href = '../index.html'; return; }
+      currentStudent = {
+        id: u.id, name: u.name, username: u.username,
+        target_band: u.target_band || 6.5,
+        exam_type: u.exam_type || 'academic'
+      };
+      // Also save as ielts_student for backward compat
+      localStorage.setItem('ielts_student', JSON.stringify(currentStudent));
+      showApp();
+    } else if (savedIelts) {
+      currentStudent = JSON.parse(savedIelts);
+      showApp();
+    } else {
+      window.location.href = '../index.html';
+    }
+  };
+
+  async function showApp() {
+    document.getElementById('topbarName').textContent = currentStudent.name;
+    document.getElementById('heroName').textContent = currentStudent.name;
+    document.getElementById('targetBadge').textContent = `Target: Band ${currentStudent.target_band}`;
+    await Promise.all([loadBandScores(), loadExams()]);
+  }
+
+  // ── BAND SCORES ────────────────────────────────────────────
+  async function loadBandScores() {
+    try {
+      const res = await fetch(W + '/ielts/progress/' + currentStudent.id);
+      const history = await res.json();
+      if (!history.length) {
+        document.getElementById('heroSub').textContent = `${currentStudent.exam_type.toUpperCase()} · No exams completed yet`;
+        return;
+      }
+      // Show latest scores
+      const latest = history[history.length - 1];
+      const setScore = (id, val) => {
+        const el = document.getElementById(id);
+        if (val) { el.textContent = val; el.classList.remove('no-score'); }
+      };
+      setScore('bandL', latest.listening);
+      setScore('bandR', latest.reading);
+      setScore('bandW', latest.writing);
+      setScore('bandS', latest.speaking);
+      if (latest.overall) {
+        document.getElementById('bandOverall').textContent = latest.overall;
+        // Progress towards target
+        const progress = Math.min((latest.overall / currentStudent.target_band) * 100, 100);
+        document.getElementById('heroSub').textContent = `${currentStudent.exam_type.toUpperCase()} · ${history.length} exam${history.length!==1?'s':''} completed · ${progress.toFixed(0)}% to target`;
+      }
+    } catch(e) { console.error(e); }
+  }
+
+  // ── EXAMS ──────────────────────────────────────────────────
+  async function loadExams() {
+    try {
+      const res = await fetch(W + '/ielts/submissions?student_id=' + currentStudent.id);
+      mySubmissions = await res.json();
+      const el = document.getElementById('examsList');
+
+      if (!mySubmissions.length) {
+        el.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">📚</div>
+            <div>No exams assigned yet</div>
+            <div style="font-size:13px;margin-top:6px">Teacher Shen will assign your first mock exam soon</div>
+          </div>`;
+        return;
+      }
+
+      el.innerHTML = mySubmissions.map(sub => buildExamCard(sub)).join('');
+    } catch(e) { showToast('Error loading exams: ' + e.message); }
+  }
+
+  function buildExamCard(sub) {
+    const statusLabel = {
+      'in_progress': 'In Progress',
+      'submitted': 'Submitted',
+      'reviewed': 'Reviewed ✓'
+    }[sub.status] || 'Pending';
+
+    const statusClass = {
+      'in_progress': 'status-in-progress',
+      'submitted': 'status-submitted',
+      'reviewed': 'status-reviewed'
+    }[sub.status] || 'status-pending';
+
+    // Score display for reviewed exams
+    let scoresHtml = '';
+    if (sub.status === 'reviewed') {
+      scoresHtml = `
+        <div class="score-grid">
+          ${['listening','reading','writing','speaking'].map(s => `
+            <div class="score-box">
+              <div class="score-box-label">${s}</div>
+              <div class="score-box-val">${sub[s+'_score'] || '—'}</div>
+            </div>`).join('')}
+        </div>
+        <div style="background:var(--ink);border-radius:10px;padding:14px;text-align:center;margin-bottom:12px">
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px">Overall Band</div>
+          <div style="font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:var(--gold)">${sub.overall_band || '—'}</div>
+        </div>`;
+    }
+
+    // Teacher feedback
+    let feedbackHtml = '';
+    if (sub.status === 'reviewed' && sub.teacher_notes) {
+      feedbackHtml = `
+        <div class="feedback-card">
+          <div class="feedback-card-label">Teacher Shen's Notes</div>
+          <p style="font-size:14px;line-height:1.7;color:var(--ink)">${sub.teacher_notes}</p>
+        </div>`;
+    }
+
+    // Action button
+    let actionBtn = '';
+    if (sub.status === 'in_progress') {
+      actionBtn = `<button class="btn btn-gold" onclick="startExam(${sub.id}, ${sub.exam_id})">Continue Exam →</button>`;
+    } else if (sub.status === 'submitted') {
+      actionBtn = `<button class="btn btn-outline" disabled style="opacity:0.5">⏳ Awaiting Review</button>`;
+    }
+
+    return `
+      <div class="exam-card">
+        <div class="exam-card-header">
+          <div class="exam-title">${sub.exam_title}</div>
+          <span class="exam-status ${statusClass}">${statusLabel}</span>
+        </div>
+        <div class="exam-meta">
+          ${sub.started_at ? 'Started: ' + sub.started_at.slice(0,10) : ''}
+          ${sub.submitted_at ? ' · Submitted: ' + sub.submitted_at.slice(0,10) : ''}
+          ${sub.reviewed_at ? ' · Reviewed: ' + sub.reviewed_at.slice(0,10) : ''}
+        </div>
+        <div class="exam-sections">
+          <span class="section-pill">🎧 Listening</span>
+          <span class="section-pill">📖 Reading</span>
+          <span class="section-pill">✍️ Writing</span>
+          <span class="section-pill">🎙️ Speaking</span>
+        </div>
+        ${scoresHtml}
+        ${feedbackHtml}
+        ${actionBtn}
+      </div>`;
+  }
+
+  function startExam(submissionId, examId) {
+    // Store submission ID and go to exam page
+    localStorage.setItem('ielts_submission_id', submissionId);
+    localStorage.setItem('ielts_exam_id', examId);
+    localStorage.setItem('ielts_student', JSON.stringify(currentStudent));
+    window.location.href = 'ielts-exam.html';
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.style.opacity = '1';
+    setTimeout(() => t.style.opacity = '0', 3500);
+  }
+</script>
+</body>
+</html>

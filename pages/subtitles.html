@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Subtitles — Teacher Shain</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a; --surface: #141414; --surface2: #1e1e1e;
+      --gold: #c8963e; --gold-light: #e8b96a;
+      --white: #f5f5f5; --muted: #555; --sage: #4a7a41;
+      --red: #c0392b; --border: #222;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--white); display: flex; flex-direction: column; }
+
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 28px; border-bottom: 1px solid var(--border);
+      flex-shrink: 0; background: var(--surface);
+    }
+    .logo { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; }
+    .logo span { color: var(--gold); }
+    .topbar-right { display: flex; align-items: center; gap: 8px; }
+
+    .lang-toggle { display: flex; background: var(--surface2); border-radius: 9px; padding: 3px; border: 1px solid var(--border); }
+    .lang-opt { padding: 5px 12px; border-radius: 7px; font-size: 12px; font-weight: 500; cursor: pointer; color: var(--muted); transition: all 0.15s; border: none; background: none; }
+    .lang-opt.active { background: var(--gold); color: #000; }
+
+    .size-btn { padding: 5px 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; color: var(--white); font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .size-btn:hover { background: #2a2a2a; }
+
+    .nav-pill {
+      padding: 5px 12px; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 7px; color: var(--muted); font-size: 12px; text-decoration: none;
+      display: flex; align-items: center; gap: 5px; transition: all 0.15s;
+    }
+    .nav-pill:hover { color: var(--gold); border-color: var(--gold); }
+
+    .mic-bar {
+      display: flex; align-items: center; gap: 16px;
+      padding: 14px 28px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .mic-btn {
+      width: 56px; height: 56px; border-radius: 50%;
+      border: 2px solid var(--border); background: var(--surface2);
+      color: var(--white); font-size: 22px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .mic-btn:hover { border-color: var(--gold); }
+    .mic-btn.listening { background: var(--red); border-color: var(--red); animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.4); } 50% { box-shadow: 0 0 0 14px rgba(192,57,43,0); } }
+
+    .mic-info { flex: 1; }
+    .mic-status { font-size: 13px; display: flex; align-items: center; gap: 7px; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: background 0.2s; flex-shrink: 0; }
+    .status-dot.live { background: var(--red); animation: blink 1s infinite; }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .mic-hint { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    .subtitle-area { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; padding: 24px 28px; overflow: hidden; }
+
+    .history-lines { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; overflow: hidden; }
+    .history-line { transition: opacity 0.4s; }
+    .history-line:nth-last-child(1) { opacity: 0.5; }
+    .history-line:nth-last-child(2) { opacity: 0.3; }
+    .history-line:nth-last-child(3) { opacity: 0.15; }
+    .history-line:nth-last-child(n+4) { opacity: 0.07; }
+    .hist-en { font-size: 18px; color: var(--white); line-height: 1.4; }
+    .hist-zh { font-family: 'Noto Sans SC', sans-serif; font-size: 16px; color: var(--gold-light); line-height: 1.5; margin-top: 2px; }
+
+    .live-box {
+      background: rgba(18,18,18,0.98); border: 1px solid var(--border);
+      border-top: 3px solid var(--gold); border-radius: 16px;
+      padding: 24px 28px; min-height: 110px; position: relative;
+    }
+    .live-label {
+      position: absolute; top: -11px; left: 18px;
+      background: var(--gold); color: #000; font-size: 9px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; padding: 2px 9px; border-radius: 100px;
+    }
+
+    .live-en { font-size: var(--en-size, 28px); color: var(--white); line-height: 1.4; min-height: 1.4em; transition: font-size 0.2s; }
+    .live-en.interim { color: rgba(255,255,255,0.35); font-style: italic; }
+    .live-zh { font-family: 'Noto Sans SC', sans-serif; font-size: var(--zh-size, 26px); color: var(--gold-light); line-height: 1.6; margin-top: 10px; min-height: 1.6em; transition: font-size 0.2s; }
+
+    .placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 32px; pointer-events: none; }
+    .placeholder-icon { font-size: 36px; opacity: 0.12; margin-bottom: 10px; }
+    .placeholder-text { font-size: 14px; color: rgba(255,255,255,0.18); margin-bottom: 5px; }
+    .placeholder-zh { font-family: 'Noto Sans SC', sans-serif; font-size: 12px; color: rgba(200,150,62,0.18); }
+
+    .not-supported { display: none; text-align: center; padding: 40px; color: var(--muted); }
+    .not-supported h2 { color: var(--white); font-size: 18px; margin-bottom: 8px; }
+
+    .bottom-bar {
+      display: flex; align-items: center; gap: 16px;
+      padding: 10px 28px; border-top: 1px solid var(--border); flex-shrink: 0; flex-wrap: wrap;
+    }
+    .tip { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+    .tip kbd { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; font-size: 10px; }
+
+    @media (max-width: 600px) {
+      .topbar, .mic-bar, .subtitle-area, .bottom-bar { padding-left: 16px; padding-right: 16px; }
+      .live-en { font-size: 22px !important; }
+      .live-zh { font-size: 20px !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">Teacher <span>Shain</span> · Live Subtitles</div>
+  <div class="topbar-right">
+    <div class="lang-toggle">
+      <button class="lang-opt active" data-mode="en-zh" onclick="setLang('en-zh')">EN → 中</button>
+      <button class="lang-opt" data-mode="zh-en" onclick="setLang('zh-en')">中 → EN</button>
+      <button class="lang-opt" data-mode="en-only" onclick="setLang('en-only')">EN</button>
+    </div>
+    <button class="size-btn" onclick="changeSize(-2)">A−</button>
+    <button class="size-btn" onclick="changeSize(2)">A+</button>
+    <a href="transcript.html" class="nav-pill">📝 Transcript</a>
+  </div>
+</div>
+
+<div class="mic-bar">
+  <button class="mic-btn" id="micBtn" onclick="toggleListening()">🎙</button>
+  <div class="mic-info">
+    <div class="mic-status">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusLabel">Click microphone to start · 点击麦克风开始</span>
+    </div>
+    <div class="mic-hint">Chrome / Edge only · <kbd>Space</kbd> to toggle</div>
+  </div>
+</div>
+
+<div class="subtitle-area">
+  <div class="history-lines" id="historyLines"></div>
+  <div class="live-box" id="liveBox" style="--en-size:28px;--zh-size:26px">
+    <span class="live-label">LIVE</span>
+    <div id="placeholder" class="placeholder">
+      <div class="placeholder-icon">字</div>
+      <div class="placeholder-text">Press the microphone to begin</div>
+      <div class="placeholder-zh">按下麦克风开始实时字幕</div>
+    </div>
+    <div id="subtitleContent" style="display:none">
+      <div class="live-en" id="liveEn"></div>
+      <div class="live-zh" id="liveZh"></div>
+    </div>
+    <div class="not-supported" id="notSupported">
+      <h2>Browser not supported</h2>
+      <p>Live subtitles require Chrome or Edge on desktop.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div class="tip"><kbd>Space</kbd> Start / Stop</div>
+  <div class="tip">🌐 Translated via MyMemory API</div>
+</div>
+
+<script>
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognition, isListening = false, currentMode = 'en-zh';
+  let translationDebounce, historyItems = [], enSize = 28, zhSize = 26;
+
+  if (!SpeechRecognition) {
+    document.getElementById('placeholder').style.display = 'none';
+    document.getElementById('notSupported').style.display = 'block';
+    document.getElementById('micBtn').disabled = true;
+    document.getElementById('micBtn').style.opacity = '0.3';
+  } else {
+    setupRecognition();
+  }
+
+  function setupRecognition() {
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      document.getElementById('micBtn').classList.add('listening');
+      document.getElementById('statusDot').classList.add('live');
+      document.getElementById('statusLabel').textContent = 'Listening… · 聆听中…';
+      document.getElementById('placeholder').style.display = 'none';
+      document.getElementById('subtitleContent').style.display = '';
+    };
+
+    recognition.onend = () => {
+      if (isListening) {
+        setTimeout(() => { try { recognition.start(); } catch(e) {} }, 150);
+        return;
+      }
+      document.getElementById('micBtn').classList.remove('listening');
+      document.getElementById('statusDot').classList.remove('live');
+      document.getElementById('statusLabel').textContent = 'Click microphone to start · 点击麦克风开始';
+      document.getElementById('liveEn').textContent = '';
+      document.getElementById('liveZh').textContent = '';
+      document.getElementById('liveEn').classList.remove('interim');
+    };
+
+    recognition.onresult = (event) => {
+      let finalText = '', interimText = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const t = event.results[i][0].transcript;
+        if (event.results[i].isFinal) finalText += t;
+        else interimText += t;
+      }
+      const liveEn = document.getElementById('liveEn');
+      const liveZh = document.getElementById('liveZh');
+      if (finalText) {
+        const trimmed = finalText.trim();
+        liveEn.classList.remove('interim');
+        liveEn.textContent = trimmed;
+        addToHistory(trimmed);
+        if (currentMode !== 'en-only') translate(trimmed, liveZh);
+        else liveZh.textContent = '';
+      } else if (interimText) {
+        liveEn.classList.add('interim');
+        liveEn.textContent = interimText;
+        liveZh.textContent = '';
+      }
+    };
+
+    recognition.onerror = (e) => {
+      if (e.error === 'not-allowed') {
+        isListening = false;
+        document.getElementById('micBtn').classList.remove('listening');
+        document.getElementById('statusLabel').textContent = 'Microphone access denied';
+      }
+    };
+  }
+
+  function toggleListening() {
+    if (!SpeechRecognition) return;
+    if (isListening) { isListening = false; recognition.stop(); }
+    else {
+      recognition.lang = currentMode === 'zh-en' ? 'zh-CN' : 'en-US';
+      isListening = true;
+      recognition.start();
+    }
+  }
+
+  async function translate(text, el) {
+    el.textContent = '…';
+    clearTimeout(translationDebounce);
+    translationDebounce = setTimeout(async () => {
+      try {
+        const [from, to] = currentMode === 'en-zh' ? ['en','zh'] : ['zh','en'];
+        const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`);
+        const d = await r.json();
+        el.textContent = d.responseData?.translatedText || '';
+        if (historyItems.length) { historyItems[historyItems.length-1].zh = el.textContent; renderHistory(); }
+      } catch { el.textContent = ''; }
+    }, 400);
+  }
+
+  function addToHistory(en) {
+    historyItems.push({ en, zh: '' });
+    if (historyItems.length > 5) historyItems.shift();
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const el = document.getElementById('historyLines');
+    const toShow = historyItems.slice(0, -1);
+    el.innerHTML = toShow.map(item => `
+      <div class="history-line">
+        <div class="hist-en">${item.en}</div>
+        ${item.zh ? `<div class="hist-zh">${item.zh}</div>` : ''}
+      </div>`).join('');
+  }
+
+  function setLang(mode) {
+    currentMode = mode;
+    document.querySelectorAll('.lang-opt').forEach(el => el.classList.toggle('active', el.dataset.mode === mode));
+    if (isListening) {
+      isListening = false; recognition.stop();
+      setTimeout(() => { recognition.lang = mode === 'zh-en' ? 'zh-CN' : 'en-US'; isListening = true; recognition.start(); }, 300);
+    }
+  }
+
+  function changeSize(delta) {
+    enSize = Math.max(14, Math.min(64, enSize + delta));
+    zhSize = Math.max(14, Math.min(64, zhSize + delta));
+    const box = document.getElementById('liveBox');
+    box.style.setProperty('--en-size', enSize + 'px');
+    box.style.setProperty('--zh-size', zhSize + 'px');
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space' && e.target === document.body) { e.preventDefault(); toggleListening(); }
+  });
+</script>
+</body>
+</html>
