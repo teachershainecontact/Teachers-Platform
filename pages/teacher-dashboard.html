@@ -133,6 +133,7 @@
     <p class="nav-section-label">Tools</p>
     <a class="nav-item" href="classroom.html" style="background:var(--gold);color:var(--ink);font-weight:700"><span class="icon">🎓</span> Start Class</a>
     <a class="nav-item" href="subtitles.html" target="_blank"><span class="icon">字</span> Live Subtitles</a>
+    <a class="nav-item" href="admin.html" style="color:var(--muted)"><span class="icon">⚙️</span> Admin Panel</a>
     <button class="nav-item" onclick="openModal('plan')"><span class="icon">📅</span> Study Plan</button>
 
     <div class="sidebar-bottom">
@@ -422,9 +423,14 @@
     <div class="form-group">
       <label>COLOUR</label>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px" id="colorPicker">
-        ${['#2D6BE4','#c8963e','#4a6741','#c0392b','#8e44ad','#16a085','#e67e22','#2c3e50'].map(c=>
-          `<div onclick="selectColor('${c}',this)" data-color="${c}" style="width:32px;height:32px;border-radius:50%;background:${c};cursor:pointer;border:3px solid transparent;transition:border .15s"></div>`
-        ).join('')}
+        <div onclick="selectColor('#2D6BE4',this)" data-color="#2D6BE4" style="width:32px;height:32px;border-radius:50%;background:#2D6BE4;cursor:pointer;border:3px solid transparent;transition:border .15s"></div>
+        <div onclick="selectColor('#c8963e',this)" data-color="#c8963e" style="width:32px;height:32px;border-radius:50%;background:#c8963e;cursor:pointer;border:3px solid transparent;transition:border .15s"></div>
+        <div onclick="selectColor('#4a6741',this)" data-color="#4a6741" style="width:32px;height:32px;border-radius:50%;background:#4a6741;cursor:pointer;border:3px solid transparent;transition:border .15s"></div>
+        <div onclick="selectColor('#c0392b',this)" data-color="#c0392b" style="width:32px;height:32px;border-radius:50%;background:#c0392b;cursor:pointer;border:3px solid transparent;transition:border .15s"></div>
+        <div onclick="selectColor('#8e44ad',this)" data-color="#8e44ad" style="width:32px;height:32px;border-radius:50%;background:#8e44ad;cursor:pointer;border:3px solid transparent;transition:border .15s"></div>
+        <div onclick="selectColor('#16a085',this)" data-color="#16a085" style="width:32px;height:32px;border-radius:50%;background:#16a085;cursor:pointer;border:3px solid transparent;transition:border .15s"></div>
+        <div onclick="selectColor('#e67e22',this)" data-color="#e67e22" style="width:32px;height:32px;border-radius:50%;background:#e67e22;cursor:pointer;border:3px solid transparent;transition:border .15s"></div>
+        <div onclick="selectColor('#2c3e50',this)" data-color="#2c3e50" style="width:32px;height:32px;border-radius:50%;background:#2c3e50;cursor:pointer;border:3px solid transparent;transition:border .15s"></div>
       </div>
       <input type="hidden" id="classColor" value="#2D6BE4">
     </div>
@@ -524,7 +530,7 @@
 <div id="toast" style="position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 22px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200"></div>
 
 <script>
-  const W = localStorage.getItem('ts_worker') || 'https://teacher-shain.teachershainecontact.workers.dev';
+  const W = localStorage.getItem('ts_worker') || 'https://teacher-shain-esl.teachershainecontact.workers.dev';
   let allSubmissions=[], allStudents=[], allClasses=[], pendingGenHw=null, activeReviewId=null;
   let selectedStars = 0;
 
@@ -1746,7 +1752,7 @@
   }
 
   async function unpublishExam(examId) {
-    if (!confirm('Unpublish this exam? Students won't be able to start it.')) return;
+    if (!confirm("Unpublish this exam? Students won't be able to start it.")) return;
     try {
       await fetch(W+'/ielts/exams/'+examId, {
         method:'POST', headers:{'Content-Type':'application/json'},
