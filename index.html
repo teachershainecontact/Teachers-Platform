@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Shain — English Learning Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #0f0e0c; --paper: #faf8f4; --cream: #f2ede4;
+      --gold: #c8963e; --gold-light: #e8b96a;
+      --red: #c0392b; --sage: #4a6741;
+      --muted: #8a8070; --border: #ddd8ce;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
+
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image:
+        radial-gradient(circle at 15% 25%, rgba(200,150,62,0.07) 0%, transparent 50%),
+        radial-gradient(circle at 85% 75%, rgba(74,103,65,0.05) 0%, transparent 50%);
+    }
+
+    /* ── Header ── */
+    header {
+      position: relative; z-index: 10;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 48px; border-bottom: 1px solid var(--border);
+    }
+    .logo { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; }
+    .logo span { color: var(--gold); }
+    .header-nav { display: flex; align-items: center; gap: 6px; }
+    .header-nav a {
+      font-size: 13px; color: var(--muted); text-decoration: none;
+      padding: 6px 14px; border-radius: 8px; transition: all 0.2s;
+    }
+    .header-nav a:hover { background: var(--cream); color: var(--ink); }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative; z-index: 1;
+      text-align: center; padding: 64px 48px 40px;
+    }
+    .hero-eyebrow {
+      font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--gold); font-weight: 600; margin-bottom: 18px;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(38px, 5vw, 64px);
+      font-weight: 900; line-height: 1.05; letter-spacing: -1px; margin-bottom: 18px;
+    }
+    .hero h1 em { font-style: italic; color: var(--gold); }
+    .hero-sub {
+      font-size: 16px; color: var(--muted); line-height: 1.7;
+      max-width: 520px; margin: 0 auto 52px;
+    }
+
+    /* ── Course cards ── */
+    .courses {
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 16px; padding: 0 48px 52px; max-width: 1200px; margin: 0 auto;
+    }
+
+    .course-card {
+      border-radius: 20px; overflow: hidden; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s; position: relative;
+    }
+    .course-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.13); }
+    .course-card.selected { transform: translateY(-4px); box-shadow: 0 0 0 3px var(--gold), 0 16px 40px rgba(0,0,0,0.15); }
+
+    .card-inner { padding: 28px 24px 24px; display: flex; flex-direction: column; height: 100%; }
+
+    .card-ielts { background: #1a3a5c; }
+    .card-toefl { background: #3a1a5c; }
+    .card-pte   { background: #1a5c3a; }
+    .card-esl   { background: var(--ink); }
+
+    .course-badge {
+      display: inline-block; padding: 3px 10px; border-radius: 100px;
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      margin-bottom: 16px; width: fit-content;
+      background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.6);
+    }
+    .card-esl .course-badge { color: var(--gold-light); }
+
+    .course-name {
+      font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700;
+      color: #fff; margin-bottom: 4px; line-height: 1.1;
+    }
+    .course-full { font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 14px; line-height: 1.4; }
+    .course-desc { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.6; flex: 1; margin-bottom: 16px; }
+
+    .course-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 20px; }
+    .course-tag {
+      padding: 3px 9px; border-radius: 100px; font-size: 11px;
+      background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.5);
+    }
+
+    .course-btn {
+      width: 100%; padding: 11px; border-radius: 10px; border: none;
+      font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+      cursor: pointer; transition: all 0.15s;
+      background: rgba(255,255,255,0.12); color: #fff;
+    }
+    .course-btn:hover { background: rgba(255,255,255,0.2); }
+    .card-esl .course-btn { background: var(--gold); color: var(--ink); }
+    .card-esl .course-btn:hover { background: var(--gold-light); }
+    .course-card.selected .course-btn { background: var(--gold); color: var(--ink); }
+
+    .card-deco {
+      position: absolute; bottom: -12px; right: -8px;
+      font-size: 90px; opacity: 0.05; line-height: 1;
+      font-family: serif; pointer-events: none; user-select: none;
+    }
+
+    /* ── Login panel ── */
+    .login-wrap {
+      position: relative; z-index: 1;
+      max-width: 440px; margin: 0 auto 60px; padding: 0 20px;
+      display: none;
+    }
+    .login-wrap.visible { display: block; animation: slideUp 0.3s ease; }
+    @keyframes slideUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+
+    .login-panel {
+      background: var(--ink); border-radius: 20px; padding: 32px 36px;
+      position: relative; overflow: hidden;
+    }
+
+    .course-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 100px;
+      font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .pill-esl   { background: rgba(200,150,62,0.2); color: var(--gold-light); border: 1px solid rgba(200,150,62,0.3); }
+    .pill-ielts { background: rgba(37,99,168,0.25); color: #93c5fd; border: 1px solid rgba(37,99,168,0.35); }
+    .pill-toefl { background: rgba(107,47,168,0.25); color: #c4b5fd; border: 1px solid rgba(107,47,168,0.35); }
+    .pill-pte   { background: rgba(42,148,101,0.25); color: #86efac; border: 1px solid rgba(42,148,101,0.35); }
+
+    .login-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 5px; }
+    .login-sub { font-size: 13px; color: rgba(255,255,255,0.38); margin-bottom: 26px; }
+
+    .role-tabs {
+      display: flex; gap: 2px; background: rgba(255,255,255,0.07);
+      border-radius: 10px; padding: 3px; margin-bottom: 22px;
+    }
+    .role-tab {
+      flex: 1; padding: 9px; text-align: center; font-size: 13px; font-weight: 500;
+      color: rgba(255,255,255,0.38); border-radius: 8px; cursor: pointer;
+      transition: all 0.2s; border: none; background: none; font-family: 'DM Sans', sans-serif;
+    }
+    .role-tab.active { background: var(--gold); color: var(--ink); }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label {
+      display: block; font-size: 11px; font-weight: 600;
+      color: rgba(255,255,255,0.38); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px;
+    }
+    .form-group input {
+      width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.11); border-radius: 10px;
+      font-size: 15px; color: #fff; font-family: 'DM Sans', sans-serif;
+      outline: none; transition: border-color 0.2s, background 0.2s;
+    }
+    .form-group input::placeholder { color: rgba(255,255,255,0.18); }
+    .form-group input:focus { border-color: var(--gold); background: rgba(255,255,255,0.1); }
+
+    .login-btn {
+      width: 100%; padding: 14px; background: var(--gold); border: none;
+      border-radius: 10px; font-size: 14px; font-weight: 700; color: var(--ink);
+      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s; margin-top: 4px;
+    }
+    .login-btn:hover { background: var(--gold-light); }
+    .login-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .login-error { color: #e87070; font-size: 13px; margin-top: 10px; display: none; }
+
+    /* ── Footer ── */
+    footer {
+      position: relative; z-index: 1; border-top: 1px solid var(--border);
+      padding: 18px 48px; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: var(--muted); }
+    .footer-logo span { color: var(--gold); }
+    .footer-links { display: flex; gap: 18px; }
+    .footer-links a { font-size: 12px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--ink); }
+
+    @media (max-width: 900px) {
+      header { padding: 14px 20px; }
+      .hero { padding: 40px 20px 28px; }
+      .courses { grid-template-columns: 1fr 1fr; padding: 0 20px 36px; }
+      footer { padding: 14px 20px; }
+    }
+    @media (max-width: 520px) {
+      .courses { grid-template-columns: 1fr; }
+      .login-panel { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Teacher <span>Shain</span></div>
+  <nav class="header-nav">
+    <a href="pages/subtitles.html" target="_blank">字 Subtitles</a>
+    <a href="pages/classroom.html">🎓 Classroom</a>
+    <a href="pages/admin.html">⚙ Admin</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <p class="hero-eyebrow">English Learning Platform</p>
+  <h1>Learn English<br>with <em>Shain</em> 老师</h1>
+  <p class="hero-sub">Choose your course to sign in. Live classes, pronunciation practice, AI feedback, and mock exams — all in one place.</p>
+</section>
+
+<div class="courses">
+
+  <div class="course-card card-ielts" id="card-ielts" onclick="selectCourse('ielts')">
+    <div class="card-inner">
+      <span class="course-badge">Exam Prep</span>
+      <div class="course-name">IELTS</div>
+      <div class="course-full">International English Language Testing System</div>
+      <div class="course-desc">Full mock exams, band score tracking, and targeted practice across all four sections.</div>
+      <div class="course-tags">
+        <span class="course-tag">🎧 Listening</span>
+        <span class="course-tag">📖 Reading</span>
+        <span class="course-tag">✍️ Writing</span>
+        <span class="course-tag">🎙️ Speaking</span>
+      </div>
+      <button class="course-btn">Sign in to IELTS →</button>
+    </div>
+    <div class="card-deco">I</div>
+  </div>
+
+  <div class="course-card card-toefl" id="card-toefl" onclick="selectCourse('toefl')">
+    <div class="card-inner">
+      <span class="course-badge">Exam Prep</span>
+      <div class="course-name">TOEFL</div>
+      <div class="course-full">Test of English as a Foreign Language</div>
+      <div class="course-desc">Academic English prep with integrated tasks, reading passages, and speaking response practice.</div>
+      <div class="course-tags">
+        <span class="course-tag">📝 Integrated</span>
+        <span class="course-tag">🎙️ Speaking</span>
+        <span class="course-tag">✍️ Essays</span>
+      </div>
+      <button class="course-btn">Sign in to TOEFL →</button>
+    </div>
+    <div class="card-deco">T</div>
+  </div>
+
+  <div class="course-card card-pte" id="card-pte" onclick="selectCourse('pte')">
+    <div class="card-inner">
+      <span class="course-badge">Exam Prep</span>
+      <div class="course-name">PTE</div>
+      <div class="course-full">Pearson Test of English Academic</div>
+      <div class="course-desc">Computer-based exam prep with AI scoring, repeat sentence tasks, and describe image practice.</div>
+      <div class="course-tags">
+        <span class="course-tag">🤖 AI Scored</span>
+        <span class="course-tag">🔊 Pronunciation</span>
+        <span class="course-tag">📊 Analytics</span>
+      </div>
+      <button class="course-btn">Sign in to PTE →</button>
+    </div>
+    <div class="card-deco">P</div>
+  </div>
+
+  <div class="course-card card-esl" id="card-esl" onclick="selectCourse('esl')">
+    <div class="card-inner">
+      <span class="course-badge">General English</span>
+      <div class="course-name">ESL</div>
+      <div class="course-full">English as a Second Language</div>
+      <div class="course-desc">General English with pronunciation recording, homework, audio feedback from Shain 老师, and live lessons.</div>
+      <div class="course-tags">
+        <span class="course-tag">🎙️ Pronunciation</span>
+        <span class="course-tag">📝 Homework</span>
+        <span class="course-tag">🏆 Scores</span>
+        <span class="course-tag">🎓 Live Class</span>
+      </div>
+      <button class="course-btn">Sign in to ESL →</button>
+    </div>
+    <div class="card-deco">英</div>
+  </div>
+
+</div>
+
+<!-- Login panel -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-panel">
+    <div class="course-pill pill-esl" id="coursePill">ESL</div>
+    <h2 class="login-title">Welcome back</h2>
+    <p class="login-sub" id="loginSub">Sign in to your ESL account</p>
+
+    <div class="role-tabs">
+      <button class="role-tab active" onclick="setRole('student',this)">Student 学生</button>
+      <button class="role-tab" onclick="setRole('teacher',this)">Teacher 老师</button>
+    </div>
+
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="your username" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"
+             onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
+
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In →</button>
+    <p class="login-error" id="loginError"></p>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">Teacher <span>Shain</span></div>
+  <div class="footer-links">
+    <a href="pages/subtitles.html" target="_blank">Live Subtitles</a>
+    <a href="pages/classroom.html">Classroom</a>
+    <a href="pages/admin.html">Admin</a>
+  </div>
+</footer>
+
+<script>
+  const WORKERS = {
+    esl:   'https://teacher-shain.teachershainecontact.workers.dev',
+    ielts: 'https://teacher-shain.teachershainecontact.workers.dev',
+    toefl: 'https://teacher-shain.teachershainecontact.workers.dev',
+    pte:   'https://teacher-shain.teachershainecontact.workers.dev',
+  };
+  const DRIVE_SCRIPT = 'REPLACE_WITH_YOUR_APPS_SCRIPT_URL';
+
+  const COURSES = {
+    esl:   { name:'ESL',   sub:'Sign in to your ESL account',   pill:'pill-esl' },
+    ielts: { name:'IELTS', sub:'Sign in to your IELTS account', pill:'pill-ielts' },
+    toefl: { name:'TOEFL', sub:'Sign in to your TOEFL account', pill:'pill-toefl' },
+    pte:   { name:'PTE',   sub:'Sign in to your PTE account',   pill:'pill-pte' },
+  };
+
+  let selectedCourse = null;
+  let currentRole = 'student';
+
+  // Auto-redirect if already logged in
+  const _u = (() => { try { return JSON.parse(localStorage.getItem('ts_user')||'{}'); } catch { return {}; } })();
+  if (_u.role === 'teacher') location.href = 'pages/teacher-dashboard.html';
+  else if (_u.role === 'student') {
+    const st = _u.student_type || localStorage.getItem('student_type') || 'esl';
+    if      (st === 'ielts') location.href = 'pages/ielts-student.html';
+    else if (st === 'toefl') location.href = 'pages/toefl-student.html';
+    else if (st === 'pte')   location.href = 'pages/pte-student.html';
+    else                     location.href = 'pages/student-dashboard.html';
+  }
+
+  function selectCourse(course) {
+    selectedCourse = course;
+    const cfg = COURSES[course];
+
+    document.querySelectorAll('.course-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('card-' + course).classList.add('selected');
+
+    const pill = document.getElementById('coursePill');
+    pill.className = 'course-pill ' + cfg.pill;
+    pill.textContent = cfg.name;
+    document.getElementById('loginSub').textContent = cfg.sub;
+    document.getElementById('loginBtn').textContent = 'Sign In to ' + cfg.name + ' →';
+    document.getElementById('loginError').style.display = 'none';
+
+    const wrap = document.getElementById('loginWrap');
+    wrap.classList.add('visible');
+    setTimeout(() => { wrap.scrollIntoView({ behavior:'smooth', block:'center' }); }, 50);
+    setTimeout(() => document.getElementById('username').focus(), 400);
+  }
+
+  function setRole(role, el) {
+    currentRole = role;
+    document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  async function doLogin() {
+    if (!selectedCourse) { selectCourse('esl'); return; }
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const errEl = document.getElementById('loginError');
+    errEl.style.display = 'none';
+
+    if (!username || !password) {
+      errEl.textContent = 'Please enter your username and password';
+      errEl.style.display = 'block'; return;
+    }
+
+    const btn = document.getElementById('loginBtn');
+    btn.textContent = 'Signing in…'; btn.disabled = true;
+
+    try {
+      const res = await fetch(WORKERS[selectedCourse] + '/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const raw = await res.text();
+      let data;
+      try { data = JSON.parse(raw); } catch {
+        errEl.textContent = 'Server error — check Worker URL';
+        errEl.style.display = 'block';
+        btn.textContent = 'Sign In to ' + COURSES[selectedCourse].name + ' →';
+        btn.disabled = false; return;
+      }
+      if (!res.ok || data.error) throw new Error('invalid');
+
+      const { role, name, id, student_type } = data.user;
+      const stype = student_type || selectedCourse;
+
+      localStorage.setItem('role', role);
+      localStorage.setItem('username', username);
+      localStorage.setItem('userName', name);
+      localStorage.setItem('userId', id);
+      localStorage.setItem('student_type', stype);
+      localStorage.setItem('ts_worker', WORKERS[selectedCourse]);
+      localStorage.setItem('ts_script', DRIVE_SCRIPT);
+      localStorage.setItem('ts_course', selectedCourse);
+      localStorage.setItem('ts_user', JSON.stringify({ role, username, name, id, student_type: stype }));
+      localStorage.setItem('ts_login_time', Date.now().toString());
+
+      if (role === 'teacher') { location.href = 'pages/teacher-dashboard.html'; return; }
+
+      // Student routing
+      if (stype === 'ielts') {
+        localStorage.setItem('ielts_student', JSON.stringify({
+          id, username, name,
+          target_band: data.user.target_band || 6.5,
+          exam_type: data.user.exam_type || 'academic'
+        }));
+        location.href = 'pages/ielts-student.html';
+      } else if (stype === 'toefl') {
+        location.href = 'pages/toefl-student.html';
+      } else if (stype === 'pte') {
+        location.href = 'pages/pte-student.html';
+      } else {
+        location.href = 'pages/student-dashboard.html';
+      }
+
+    } catch {
+      errEl.textContent = 'Incorrect username or password';
+      errEl.style.display = 'block';
+      btn.textContent = 'Sign In to ' + COURSES[selectedCourse].name + ' →';
+      btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>
